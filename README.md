@@ -31,11 +31,11 @@ The **Number Classification API** is a simple RESTful API that takes a number as
 
 ```json
 {
-  "digit_sum": 11,
-  "fun_fact": "371 is a narcissistic number.",
+  "digit_sum": 5,
+  "fun_fact": "5 is the second Sierpinski number of the first kind, and can be written as S2=(22)+1.",
   "is_perfect": false,
-  "is_prime": false,
-  "number": 371,
+  "is_prime": true,
+  "number": 5,
   "properties": [
     "armstrong",
     "odd"
@@ -146,7 +146,7 @@ http://127.0.0.1:5000/api/classify-number?number=371
 Replace `<your-api-url>` with your deployed API link:
 
 ```
-https://https://numberclassificationapi-1.onrender.com/api/classify-number?number=371
+https://numberclassificationapi-14rq.onrender.com/api/classify-number?number=5
 
 ```
 
