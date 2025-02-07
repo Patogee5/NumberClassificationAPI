@@ -44,12 +44,8 @@ def classify_number():
     number = request.args.get("number")
 
     # Input validation
-    try:
-        num = float(number)  # Accepts integers, negatives, and floating points
-        return jsonify({"number": num, "message": "Valid number", "status": 200}), 200
-    except ValueError:
-        return jsonify({"error": "Invalid input. Please enter a number."}), 400
-
+      if not number or not number.lstrip("-").isdigit():
+        return jsonify({"number": number, "error": True}), 400
 
     number = int(number)
 
