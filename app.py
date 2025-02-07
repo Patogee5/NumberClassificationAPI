@@ -2,76 +2,70 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 import math
-from collections import OrderedDict
+import os
 
-app = Flask(__name__)
-CORS(app)
+app = Flask(_name_)
+CORS(app)  # Enable CORS
 
-# Function to check if a number is prime
 def is_prime(n):
-    if n < 2 or n % 1 != 0:  # Exclude floats and numbers < 2
+    """Check if a number is prime."""
+    if n < 2:
         return False
     for i in range(2, int(math.sqrt(n)) + 1):
         if n % i == 0:
             return False
     return True
 
-# Function to check if a number is perfect
 def is_perfect(n):
-    if n < 1 or not n.is_integer():  # Ensure it's a positive integer
+    """Check if a number is a perfect number."""
+    if n < 1:
         return False
-    n = int(n)  # Convert float to int before using range
-    return sum(i for i in range(1, n) if n % i == 0) == n
+    return sum([i for i in range(1, n) if n % i == 0]) == n
 
-
-# Function to check if a number is an Armstrong number
 def is_armstrong(n):
-    if n < 0:
-        return False
-    digits = [int(d) for d in str(abs(int(n)))]  # Convert to integer for Armstrong check
+    """Check if a number is an Armstrong number."""
+    digits = [int(d) for d in str(abs(n))]  # Handle negative numbers correctly
     power = len(digits)
-    return sum(d**power for d in digits) == abs(int(n))
+    return sum(d**power for d in digits) == abs(n)
 
-# Function to get the sum of digits of a number
-def digit_sum(n):
-    return sum(int(digit) for digit in str(abs(int(n))))  # Sum absolute digit values
-
-# Function to get fact from Numbers API
 def get_fun_fact(n):
-    response = requests.get(f"http://numbersapi.com/{n}/math")
-    return response.text if response.status_code == 200 else "No fun fact available."
+    """Fetch a fun fact from the Numbers API."""
+    url = f"http://numbersapi.com/{abs(n)}/math?json"  # Use absolute value for fun fact
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json().get("text", "No fun fact found.")
+    except requests.exceptions.RequestException:
+        return "Could not fetch fun fact."
+    return "No fun fact available."
 
 @app.route('/api/classify-number', methods=['GET'])
 def classify_number():
-    number = request.args.get('number')
+    """Classify a number based on various properties."""
+    number = request.args.get("number")
 
-    # Validate input: Check if input is None or not a valid number
+    # *Input validation*
     try:
-        number = float(number)  # Convert to float for decimal support
+        num = int(number)  # Convert to integer (Handles negative numbers too)
     except (ValueError, TypeError):
-        return jsonify({"number": number, "error": "Invalid input. Must be a number."}), 400
+        return jsonify({"error": "Invalid input. Please enter a valid integer."}), 400
 
     # Determine properties
-    prime_status = is_prime(number)
-    perfect_status = is_perfect(number)
-    armstrong_status = is_armstrong(number)
-    odd_even = "odd" if number % 2 != 0 else "even"
-    properties = [odd_even]
-
-    if armstrong_status:
+    properties = ["even" if num % 2 == 0 else "odd"]
+    if is_armstrong(num):
         properties.insert(0, "armstrong")
 
-    # Get fun fact
-    fun_fact = get_fun_fact(int(number))  # Convert to int to match Numbers API format
+    response = {
+        "number": num,
+        "is_prime": is_prime(num),
+        "is_perfect": is_perfect(num),
+        "properties": properties,
+        "digit_sum": sum(int(digit) for digit in str(abs(num))),  # Handle negatives correctly
+        "fun_fact": get_fun_fact(num)
+    }
 
-    # Prepare response
-    response = OrderedDict([
-        ("number", number),
-        ("is_prime", prime_status),
-        ("is_perfect", perfect_status),
-        ("properties", properties),
-        ("digit_sum", digit_sum(number)),
-        ("fun_fact", fun_fact)
-    ])
+    return jsonify(response), 200
 
-
+if _name_ == "_main_":
+    port = int(os.environ.get("PORT", 5000))  # Use dynamic PORT for Render
+    app.run(debug=True, host="0.0.0.0", port=port)
