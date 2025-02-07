@@ -21,11 +21,14 @@ def is_perfect(n):
         return False
     return sum([i for i in range(1, n) if n % i == 0]) == n
 
-def is_armstrong(n):
-    """Check if a number is an Armstrong number."""
-    digits = [int(d) for d in str(n)]
+def is_armstrong(number):
+    if not str(number).lstrip('-').isdigit():  # Ensure the input is a valid number
+        return False
+    
+    digits = [int(d) for d in str(abs(int(number)))]  # Convert to absolute value before processing
     power = len(digits)
-    return sum(d**power for d in digits) == n
+    return sum(d ** power for d in digits) == abs(int(number))
+
 
 def get_fun_fact(n):
     """Fetch a fun fact from the Numbers API."""
